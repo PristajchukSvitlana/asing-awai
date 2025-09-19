@@ -63,16 +63,109 @@ async function renderTodos() {
 }
 renderTodos();
 
-async function renderAlbums() {
+async function getAlbums(userId) {
     const albums = await fetchAPI("albums");
-    console.log("albums", albums);
+    const albumList = albums.filter(album => album.userId === userId);
 
-    const albumList = albums.filter(album => album.userId===userId);
-    albumList.forEach(album => {
-        console.log("album title", album.title);
+    return albumList;
+}
+
+function createAlbumByUser(data) {
+    let ul = document.createElement("ul");
+
+    data.forEach((item, index) => {
+        if (index === 0) {
+            let li = document.createElement("li");
+            li.innerHTML = `<b>Альбомы пользователя #${item.userId}:</b>`;
+            ul.append(li)
+        }
+
+        let li = document.createElement("li");
+        li.textContent = `${index + 1} - ${item.title}`;
+
+        ul.append(li)
     });
 
-  return albumList;
-
+    document.body.append(ul);
 }
-renderAlbums(1)
+
+async function renderAlbums() {
+    const albums = await getAlbums(3)
+
+    createAlbumByUser(albums);
+}
+renderAlbums()
+//Comments
+const COMMENTS_API = "https://jsonplaceholder.typicode.com/comments";
+async function getComments(postId) {
+    try {
+        const response = await fetch(`${COMMENTS_API}`);
+        const data = await response.json();
+        const commentList = data.filter(comment => comment.postId === postId);
+
+        return commentList;
+    }
+    catch (e) {
+        console.log("Error:", e);
+    }
+}
+function createCommentList(data) {
+    let ul = document.createElement("ul");
+
+    data.forEach((item, index) => {
+        if (index === 0) {
+            let li = document.createElement("li");
+            li.innerHTML = `<b>Комментарии к посту #${item.postId}:</b>`;
+            ul.append(li)
+        }
+
+        let li = document.createElement("li");
+        li.textContent = `${index + 1} - ${item.name} (${item.email})`;
+
+        ul.append(li)
+    })
+    document.body.append(ul)
+};
+
+async function renderComments() {
+    const data = await getComments(2);
+    createCommentList(data)
+}
+renderComments()
+//POSTS
+
+//RANDOM_USERS
+const API_URL = "https://randomuser.me/api/?results=5";
+async function fetchRandomUsers() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        return data.results;
+    }
+    catch (e) {
+        console.log("Error:", e);
+    }
+}
+
+function createdListRamdomUsers(data) {
+    data.forEach((user, index) => {
+        let ul = document.createElement("ul");
+
+        if (index === 0) {
+            let li = document.createElement("li");
+            li.innerHTML = `<b>Случайные пользователи:</b>`;
+            ul.append(li)
+        }
+
+        let li = document.createElement("li");
+        li.textContent = `${index + 1} - ${user.name.first} ${user.name.last} (${user.email}), ${user.location.country}`;
+
+        ul.append(li)
+        document.body.append(ul);
+    });
+}
+async function renderRamdomUsers() {
+    const data = await fetchRandomUsers();
+    createdListRamdomUsers(data)
+}
+renderRamdomUsers();
